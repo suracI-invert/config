@@ -137,8 +137,21 @@ def run(shell: str = "zsh"):
         # Add completion script for zsh
         match shell:
             case "zsh":
+                _dir = os.environ.get("HOME", os.path.expanduser("~"))
+                _dir = os.path.join(_dir, ".zsh-complete")
+                os.makedirs(_dir, exist_ok=True)
+                _target = os.path.join(_dir, "_rg")
+                subprocess.run(
+                    [
+                        f"{DEFAULT_DST}/bin/rg",
+                        "--generate",
+                        "complete-zsh",
+                        ">",
+                        _target,
+                    ],
+                )
                 write_to_config_file(
-                    ["source <(rg --generate complete-zsh)", "source <(fzf --zsh)"],
+                    ["source <(fzf --zsh)"],
                     os.path.expanduser("~/.zshrc"),
                 )
 
