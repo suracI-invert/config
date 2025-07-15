@@ -48,7 +48,8 @@ FZF_URL = "https://github.com/junegunn/fzf/releases/download/v0.64.0/fzf-0.64.0-
 LAZYGIT_URL = "https://github.com/jesseduffield/lazygit/releases/download/v0.53.0/lazygit_0.53.0_Linux_x86_64.tar.gz"
 
 TEMP = "temp"
-DEFAULT_DST = os.path.expanduser("~/.local")
+# DEFAULT_DST = os.path.expanduser("~/.local")
+DEFAULT_DST = "local"
 os.makedirs(TEMP, exist_ok=True)
 
 
@@ -95,6 +96,18 @@ def resolve_symlinks(src: str, dst: str):
     return symlinks_tuple
 
 
+def write_to_config_file(lines: list[str], path: str):
+    with open(path, "a") as f:
+        s = "\n\n"
+        for line in f.readlines():
+            for _l in lines:
+                if line.strip() == _l:
+                    continue
+                s += _l
+                s += "\n"
+        f.write(s)
+
+
 def run(shell: str = "zsh"):
     try:
         rip_fname = install_deb(RIPGREP_URL)
@@ -124,10 +137,11 @@ def run(shell: str = "zsh"):
         # Add completion script for zsh
         match shell:
             case "zsh":
-                with open(os.path.expanduser("~/.zshrc"), "a") as f:
-                    s = "\n\n"
-                    s += "source <(rg --generate complete-zsh)"
-                    f.write(s)
+                write_to_config_file(
+                    ["source <(rg --generate complete-zsh)", "source <(fzf --zsh)"],
+                    os.path.expanduser("~/.zshrc"),
+                )
+
             case "bash":
                 _dir = os.environ.get("XDG_CONFIG_HOME", "")
                 _dir = os.path.join(_dir, "bash_completion")
@@ -141,6 +155,10 @@ def run(shell: str = "zsh"):
                         ">",
                         _target,
                     ],
+                )
+
+                write_to_config_file(
+                    ["source <(fzf --bash)"], os.path.expanduser("~/.bashrc")
                 )
             case "fish":
                 _dir = os.environ.get("XDG_CONFIG_HOME", "")
@@ -156,6 +174,7 @@ def run(shell: str = "zsh"):
                         _target,
                     ],
                 )
+                subprocess.run(["fzf", "--fish", "|", "source"])
             case _:
                 print(f"Unsupported shell: {shell}. No completion script added.")
     except ValueError as e:
