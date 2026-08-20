@@ -1,9 +1,31 @@
+# Source - https://stackoverflow.com/a/57144660
+# Posted by Ruslan Stelmachenko, modified by community. See post 'Timeline' for change history
+# Retrieved 2026-07-10, License - CC BY-SA 4.0
+
+# Preferred editor for local and remote sessions
+if [[ -n $SSH_CONNECTION ]]; then # SSH mode
+  export EDITOR='vim'
+else # Local terminal mode
+  export EDITOR='code -w'
+fi
+export VISUAL="$EDITOR"
+
+
 
 . "$HOME/.local/bin/env"
 
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+if [[ -n $GHOSTTY_RESOURCES_DIR ]]; then
+  source "$GHOSTTY_RESOURCES_DIR"/shell-integration/zsh/ghostty-integration
 fi
+
+if [[ -o interactive ]]; then
+  fastfetch
+fi
+
+# if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+#   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+# fi
+
 
 ### Added by Zinit's installer
 if [[ ! -f $HOME/.local/share/zinit/zinit.git/zinit.zsh ]]; then
@@ -82,6 +104,13 @@ zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'ls --color $realpath'
 alias ls='ls --color'
 
 # Shell integrations
-source /usr/share/doc/fzf/examples/key-bindings.zsh
-source /usr/share/doc/fzf/examples/completion.zsh
+# Set up fzf key bindings and fuzzy completion
+source <(fzf --zsh)
 eval "$(zoxide init --cmd cd zsh)"
+
+eval "$(uv generate-shell-completion zsh)"
+eval "$(uvx --generate-shell-completion zsh)"
+
+export USER_NAME="$USER"
+export USER_ID="$(id -u)"
+export USER_ID="$(id -u)"
