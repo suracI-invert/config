@@ -1,3 +1,18 @@
+# Created by newuser for 5.9
+
+# SSH agent bridge — WSL only
+if [[ -n ${WSL_DISTRO_NAME:-} || -n ${WSL_INTEROP:-} ]]; then
+  bridge="$HOME/.scripts/ssh-agent-bridge"
+
+  if [[ -r "$bridge" ]]; then
+    source "$bridge"
+  fi
+
+  unset bridge
+fi
+
+. "$HOME/.local/bin/env"
+
 # Source - https://stackoverflow.com/a/57144660
 # Posted by Ruslan Stelmachenko, modified by community. See post 'Timeline' for change history
 # Retrieved 2026-07-10, License - CC BY-SA 4.0
@@ -11,9 +26,6 @@ fi
 export VISUAL="$EDITOR"
 
 
-
-. "$HOME/.local/bin/env"
-
 if [[ -n $GHOSTTY_RESOURCES_DIR ]]; then
   source "$GHOSTTY_RESOURCES_DIR"/shell-integration/zsh/ghostty-integration
 fi
@@ -22,9 +34,9 @@ if [[ -o interactive ]]; then
   fastfetch
 fi
 
-# if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-#   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-# fi
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
 
 
 ### Added by Zinit's installer
@@ -68,11 +80,13 @@ zinit snippet OMZP::kubectl
 zinit snippet OMZP::kubectx
 zinit snippet OMZP::command-not-found
 
+autoload -Uz compinit && compinit
+
 autoload -Uz _zinit
 (( ${+_comps} )) && _comps[zinit]=_zinit
 zinit cdreplay -q
 
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+# [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 # Keybindings
 bindkey -e
@@ -114,3 +128,6 @@ eval "$(uvx --generate-shell-completion zsh)"
 export USER_NAME="$USER"
 export USER_ID="$(id -u)"
 export USER_ID="$(id -u)"
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
