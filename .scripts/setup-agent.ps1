@@ -262,9 +262,37 @@ foreach ($keyFile in $generatedKeys) {
     Write-Host ""
 }
 
+# ------------------------------------------------------------
+# 7. Install npiperelay
+# ------------------------------------------------------------
+
+
+$toolsDir = "C:\tools"
+$zipPath  = "$toolsDir\npiperelay.zip"
+
+New-Item -ItemType Directory -Force -Path $toolsDir | Out-Null
+
+Invoke-WebRequest `
+    -Uri "https://github.com/jstarks/npiperelay/releases/latest/download/npiperelay_windows_amd64.zip" `
+    -OutFile $zipPath
+
+Expand-Archive `
+    -Path $zipPath `
+    -DestinationPath $toolsDir `
+    -Force
+
+Remove-Item $zipPath -Force
+
+if (Test-Path "$toolsDir\npiperelay.exe") {
+    Write-Host "npiperelay installed successfully:" -ForegroundColor Green
+    Write-Host "  $toolsDir\npiperelay.exe"
+} else {
+    Write-Host "ERROR: npiperelay.exe was not found after extraction." -ForegroundColor Red
+    exit 1
+}
 
 # ------------------------------------------------------------
-# 7. Show agent state + test SSH config
+# 8. Show agent state + test SSH config
 # ------------------------------------------------------------
 
 Write-Host ""
