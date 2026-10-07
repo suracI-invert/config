@@ -1,4 +1,4 @@
-```powershell
+
 # ============================================================
 # Bitwarden SSH Agent + Windows OpenSSH Setup
 # Run this script in PowerShell AS ADMINISTRATOR
@@ -20,17 +20,16 @@ Write-Host " Bitwarden SSH Agent Setup" -ForegroundColor Cyan
 Write-Host "============================================" -ForegroundColor Cyan
 Write-Host ""
 
-
 # ------------------------------------------------------------
 # 1. Check Administrator privileges
 # ------------------------------------------------------------
 
 Write-Host "[1/7] Checking Administrator privileges..." -ForegroundColor Cyan
 
-$isAdmin = (
-    [Security.Principal.WindowsPrincipal]
-    [Security.Principal.WindowsIdentity]::GetCurrent()
-).IsInRole(
+$currentIdentity = [Security.Principal.WindowsIdentity]::GetCurrent()
+$principal = New-Object Security.Principal.WindowsPrincipal($currentIdentity)
+
+$isAdmin = $principal.IsInRole(
     [Security.Principal.WindowsBuiltInRole]::Administrator
 )
 
@@ -41,7 +40,6 @@ if (-not $isAdmin) {
 }
 
 Write-Host "OK: Running as Administrator." -ForegroundColor Green
-
 
 # ------------------------------------------------------------
 # 2. Disable Windows native ssh-agent
@@ -311,4 +309,4 @@ Write-Host "If authentication succeeds, Git should now work:" -ForegroundColor G
 Write-Host ""
 Write-Host "  git pull"
 Write-Host ""
-```
+
