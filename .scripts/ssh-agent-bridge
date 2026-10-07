@@ -1,0 +1,35 @@
+#!/bin/bash
+
+mkdir -p "$HOME/.pipe/ssh"
+export SSH_AUTH_SOCK="$HOME/.pipe/ssh/agent.sock"
+
+MAX_RETRIES=3
+ATTEMPT=1
+BRIDGE_UP=0
+
+while [ $ATTEMPT -le $MAX_RETRIES ]; do
+    if ! ss -a 2>/dev/null | grep -q "$SSH_AUTH_SOCK"; then
+        rm -f "$SSH_AUTH_SOCK"
+        (setsid socat UNIX-LISTEN:"$SSH_AUTH_SOCK",fork EXEC:"/mnt/c/tools/npiperelay.exe -ei -s //./pipe/openssh-ssh-agent",nofork &) >/dev/null 2>&1
+        sleep 0.2
+    fi
+
+    AGENT_OUTPUT=$(ssh-add -l 2>&1)
+
+    if [[ "$AGENT_OUTPUT" == *"error fetching identities"* ]] || [[ "$AGENT_OUTPUT" == *"Could not open a connection"* ]]; then
+        killall socat 2>/dev/null
+        rm -f "$SSH_AUTH_SOCK"
+        sleep 0.5
+    else
+        BRIDGE_UP=1
+        break
+    fi
+
+    ATTEMPT=$((ATTEMPT + 1))
+done
+
+if [ $BRIDGE_UP -eq 0 ]; then
+    echo -e "\033[1;31m⚠️  WARNING: Bitwarden SSH Agent bridge failed!\033[0m"
+    echo -e "\033[0;33mMake sure Bitwarden is running and unlocked in Windows.\033[0m"
+    echo -e "To reset the bridge manually, run: \033[1;37mkillall socat && source ~/.zshrc\033[0m\n"
+fi
