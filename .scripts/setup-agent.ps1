@@ -266,6 +266,9 @@ foreach ($keyFile in $generatedKeys) {
 # 7. Install npiperelay
 # ------------------------------------------------------------
 
+Write-Host ""
+Write-Host "[7/7] Installing npiperelay..." -ForegroundColor Cyan
+Write-Host ""
 
 $toolsDir = "C:\tools"
 $zipPath  = "$toolsDir\npiperelay.zip"
@@ -296,7 +299,7 @@ if (Test-Path "$toolsDir\npiperelay.exe") {
 # ------------------------------------------------------------
 
 Write-Host ""
-Write-Host "[7/7] Final SSH agent status..." -ForegroundColor Cyan
+Write-Host "Final SSH agent status..." -ForegroundColor Cyan
 Write-Host ""
 
 & ssh-add -l
