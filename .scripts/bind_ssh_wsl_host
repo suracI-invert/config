@@ -1,0 +1,24 @@
+#!/bin/bash
+
+PUBKEYS_DIR="$HOME/.ssh/pubkeys"
+mkdir -p "$PUBKEYS_DIR"
+
+# Loop through each line output by ssh-add -L
+ssh-add -L | while read -r type key comment rest; do
+    if [ -n "$comment" ]; then
+        filepath="$PUBKEYS_DIR/$comment.pub"
+        
+        # Check if the file already exists (! -f)
+        if [ ! -f "$filepath" ]; then
+            # Write the exact raw string (including the 4th column if it exists)
+            echo "$type $key $comment $rest" > "$filepath"
+            
+            # Ensure strict Linux permissions in case it's a native Linux file
+            chmod 644 "$filepath"
+            
+            echo -e "\033[1;32mCreated new key: $comment.pub\033[0m"
+        else
+            echo -e "\033[1;30mSkipped (already exists): $comment.pub\033[0m"
+        fi
+    fi
+done
